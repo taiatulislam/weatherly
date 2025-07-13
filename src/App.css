@@ -1,0 +1,26 @@
+/* 83d0cb */
+/* 145277 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.box {
+  height: 100vh;
+  width: 100vw;
+  padding: 10px;
+}
+
+.box-background {
+  background: linear-gradient(
+    45deg,
+    rgba(20, 82, 119, 1) 0%,
+    rgba(131, 208, 203, 1) 82%
+  );
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  margin: 0 auto;
+}
