@@ -1,6 +1,6 @@
 import "./App.css";
 import Clear from "../src/assets/icons/clear.png";
-import Cloud from "../src/assets/icons/clouds.png";
+import Clouds from "../src/assets/icons/clouds.png";
 import Drizzle from "../src/assets/icons/drizzle.png";
 import Mist from "../src/assets/icons/mist.png";
 import Rain from "../src/assets/icons/rain.png";
@@ -12,7 +12,9 @@ import react, { useState } from "react";
 
 function App() {
   const [countryName, setCountryName] = useState("");
-  const [weather, setWeather] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const handleChange = (e) => {
     setCountryName(e.target.value);
@@ -28,18 +30,25 @@ function App() {
     )
       .then((res) => res.json())
       .then((data) => {
-        setWeather(data);
+        setIsError(false);
+        if (data?.cod === "404") {
+          setIsError(true);
+        } else {
+          setWeatherData(data);
+        }
+        setCountryName("");
+        setIsLoading(false);
       })
       .catch((err) => {
         console.error(err);
+        setCountryName("");
+        setIsLoading(false);
       });
   };
 
-  console.log("weather", weather);
-
   return (
-    <div class="box">
-      <div class="box-background">
+    <div className="box">
+      <div className="box-background">
         <div
           style={{
             ...displayFlex,
@@ -66,85 +75,131 @@ function App() {
                 justifyContent: "space-between",
               }}
             >
-              {/* input and search button */}
-              <div
-                style={{
-                  ...displayFlex,
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
-                <input
-                  type="text"
-                  className="custom-input"
-                  placeholder="Enter city name"
-                  onChange={handleChange}
-                />
+              {isLoading && (
                 <div
-                  style={{
-                    backgroundColor: "white",
-                    height: "40px",
-                    width: "40px",
-                    borderRadius: "50%",
-                    ...displayFlex,
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                  onClick={handleSearch}
-                >
-                  <img
-                    src={Search}
-                    alt="Search"
+                  className="loader"
+                  style={{ height: "100%", ...displayFlex }}
+                ></div>
+              )}
+
+              {!isLoading && (
+                <>
+                  {/* input and search button */}
+                  <div
                     style={{
-                      height: "20px",
-                      width: "20px",
-                      objectFit: "contain",
+                      ...displayFlex,
+                      justifyContent: "space-between",
+                      width: "100%",
                     }}
-                  />
-                </div>
-              </div>
+                  >
+                    <input
+                      type="text"
+                      className="custom-input"
+                      placeholder="Enter city name"
+                      onChange={handleChange}
+                      value={countryName}
+                    />
+                    <div
+                      style={{
+                        backgroundColor: "white",
+                        height: "40px",
+                        width: "40px",
+                        borderRadius: "50%",
+                        ...displayFlex,
+                        justifyContent: "center",
+                        cursor: "pointer",
+                      }}
+                      onClick={handleSearch}
+                    >
+                      <img
+                        src={Search}
+                        alt="Search"
+                        style={{
+                          height: "20px",
+                          width: "20px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </div>
+                  </div>
 
-              {/* Search Result */}
-              <div style={{ width: "100%" }}>
-                <img
-                  src={Cloud}
-                  alt="Cloud"
-                  style={{
-                    height: "150px",
-                    width: "150px",
-                    objectFit: "contain",
-                  }}
-                />
-                <h1
-                  style={{
-                    color: "white",
-                    fontSize: "60px",
-                    marginTop: "-10px",
-                  }}
-                >
-                  22<sup>°</sup>C
-                </h1>
-                <h1 style={{ color: "white" }}>New York</h1>
+                  {isError && (
+                    <div style={{ height: "100%", ...displayFlex }}>
+                      <h3 style={{ color: "red" }}>No City Found.</h3>
+                    </div>
+                  )}
 
-                <div
-                  style={{
-                    ...displayFlex,
-                    justifyContent: "space-between",
-                    marginTop: "100px",
-                  }}
-                >
-                  <CommonDesign
-                    icon={Humidity}
-                    type={"Humidity"}
-                    value={"50%"}
-                  />
-                  <CommonDesign
-                    icon={Wind}
-                    type={"Wind Speed"}
-                    value={"15 km/h"}
-                  />
-                </div>
-              </div>
+                  {/* Search Result */}
+                  {weatherData && !isError && (
+                    <div style={{ width: "100%" }}>
+                      <img
+                        src={
+                          weatherData?.weather?.[0]?.main === "Clouds"
+                            ? Clouds
+                            : weatherData?.weather?.[0]?.main === "Rain"
+                            ? Rain
+                            : weatherData?.weather?.[0]?.main === "Mist"
+                            ? Mist
+                            : weatherData?.weather?.[0]?.main === "Clear"
+                            ? Clear
+                            : weatherData?.weather?.[0]?.main === "Snow"
+                            ? Snow
+                            : Drizzle
+                        }
+                        alt={weatherData?.weather?.[0]?.main}
+                        style={{
+                          height: "150px",
+                          width: "150px",
+                          objectFit: "contain",
+                        }}
+                      />
+                      <h1
+                        style={{
+                          color: "white",
+                          fontSize: "60px",
+                          marginTop: "-10px",
+                        }}
+                      >
+                        {Math.round(weatherData?.main?.temp)}
+                        <sup>°</sup>C
+                      </h1>
+                      <h1 style={{ color: "white" }}>{weatherData?.name}</h1>
+
+                      <div
+                        style={{
+                          ...displayFlex,
+                          justifyContent: "space-between",
+                          marginTop: "100px",
+                        }}
+                      >
+                        <CommonDesign
+                          icon={Humidity}
+                          type={"Humidity"}
+                          value={weatherData?.main?.humidity}
+                        />
+                        <CommonDesign
+                          icon={Wind}
+                          type={"Wind Speed"}
+                          value={`${weatherData?.wind?.speed} km/h`}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {!weatherData && !isError && (
+                    <div
+                      style={{
+                        height: "100%",
+                        ...displayFlex,
+                      }}
+                    >
+                      <h3 style={{ color: "white" }}>
+                        Search with a city to see weather Result.
+                      </h3>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
