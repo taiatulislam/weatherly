@@ -24,3 +24,15 @@
   border-radius: 10px;
   margin: 0 auto;
 }
+
+.custom-input {
+  width: 88%;
+  height: 40px;
+  border-radius: 30px;
+  border: none;
+  padding-left: 20px;
+}
+
+.custom-input:focus {
+  outline: 2px solid #00bfff;
+}

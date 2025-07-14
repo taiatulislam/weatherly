@@ -8,8 +8,35 @@ import Snow from "../src/assets/icons/snow.png";
 import Wind from "../src/assets/icons/wind.png";
 import Humidity from "../src/assets/icons/humidity.png";
 import Search from "../src/assets/icons/search.png";
+import react, { useState } from "react";
 
 function App() {
+  const [countryName, setCountryName] = useState("");
+  const [weather, setWeather] = useState(null);
+
+  const handleChange = (e) => {
+    setCountryName(e.target.value);
+  };
+
+  const handleSearch = () => {
+    if (!countryName) return;
+
+    fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${countryName}&appid=${
+        import.meta.env.VITE_API_KEY
+      }&units=metric`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setWeather(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  console.log("weather", weather);
+
   return (
     <div class="box">
       <div class="box-background">
@@ -49,12 +76,9 @@ function App() {
               >
                 <input
                   type="text"
-                  style={{
-                    width: "88%",
-                    height: "40px",
-                    borderRadius: "30px",
-                    border: "none",
-                  }}
+                  className="custom-input"
+                  placeholder="Enter city name"
+                  onChange={handleChange}
                 />
                 <div
                   style={{
@@ -66,6 +90,7 @@ function App() {
                     justifyContent: "center",
                     cursor: "pointer",
                   }}
+                  onClick={handleSearch}
                 >
                   <img
                     src={Search}
